@@ -1,0 +1,35 @@
+CleanMyBib a Python script to prepare a bibtex file according to the APA/Vancouver guidelines.
+
+Created by Guillaume T. Vallet -- 22/11/2011 -- v02
+			Add a Qt version   -- 10/03/2011 -- v03
+[Laval University (Quebec city, Canada) / Lyon 2 University (Lyon, France)]
+
+Licence: GPL v3
+
+
+
+[DEPENDENCIES]
+    You need to have a working installation of Python (python 2.7 for instance).
+    If you don't, you can find it on the python website: http://www.python.org/download/
+
+	For the Qt version, a working version of Qt and PyQt are needed. 
+	More information on Qt: http://qt.nokia.com/
+	More information on PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+    
+    
+[DESCRIPTION]
+    The script offers a simple Tkinter graphical interface or a more advanced version in PyQt.
+    You can load a bibtex file, and the script will automatically run.
+    The script will:
+        - remove the URL, number and month lines,
+        - capitalize the right words of the journal's names,
+        - change the page numbers of the last pages (or add XXXX if there is no information).
+
+
+[OPTIONS]
+    You can change between a 'Vancouver' style and an 'APA' style.
+    APA -> Journal name in the long format (e.g., Journal of Experimental Psychology) 
+		and all the page numbers displayed (e.g. 1151 -- 1159).
+    Vancouver -> Journal name in the short format (e.g. J EXP PSYCHOL)
+		and trunked repeated page numbers (e.g. 11151 -- 9).
+

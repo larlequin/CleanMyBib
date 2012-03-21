@@ -414,23 +414,27 @@ class MainWindow(QtGui.QMainWindow):
             
             
     def Opts(self):
+        """
+           Option panel to add/remove key words defining the fields
+             to ignore in the cleaned bibtex file
+        """
         opt = QtGui.QDialog(self)
         opt.setWindowTitle('Options -- Fields to delete')
         self.listOpt = QtGui.QListWidget(opt)
         for item in self.chx:
                 self.listOpt.addItem(item)
-
+        # Define the buttons
         AddBt = QtGui.QPushButton('Add', opt)
         RemBt = QtGui.QPushButton('Remove', opt)
         QtBt  = QtGui.QPushButton('Quit', opt)
         Cl_Bt = QtGui.QPushButton('Cancel', opt)
-
+        # Define the action associated to the buttons
         RemBt.clicked.connect(self.RemoveField)
         AddBt.clicked.connect(self.Add)
         Cl_Bt.clicked.connect(opt.close)
         QtBt.clicked.connect(opt.close)
         QtBt.clicked.connect(self.UpList)   
-
+        # Place the widgets on the grid
         grid_opt = QtGui.QGridLayout()
         grid_opt.addWidget(self.listOpt, 0, 0, 5, 3)
         grid_opt.addWidget(AddBt, 0, 3)
@@ -456,7 +460,7 @@ class MainWindow(QtGui.QMainWindow):
             self.listOpt.sortItems(order = QtCore.Qt.AscendingOrder)
 
     def UpList(self):
-        self_chx = []
+        self.chx = []
         for index in xrange(self.listOpt.count()):
             self.chx.append(str(self.listOpt.item(index).text()))
 

@@ -8,7 +8,7 @@ import csv
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 
 
 # Allow to read the picture file in pyinstaller
@@ -23,11 +23,15 @@ else:   # one-dir
 
 
 class CleanFileBib():
+    """ The main script of CleanMyBib
+        Take a bibtex file and clean it to correspond to the APA
+          or Vancouver like style
+    """
     def __init__(self, fileBib, file_BibOk, to_sup, style=1):
         """ A function to go line by line and clean the correct lines"""
         self.BibOK = file_BibOk
         self.style = style
-        debut = re.compile('^\s*(\w+)\s*(=)\D*') # Search for space - word - space - '='
+        debut = re.compile('^\s*(\W+)\s*(=)\D*') # Search for space - word - space - '='
         txt = fileBib.readline() # Read the first line of the bib file
         linePage = self.FindLine('pages') # Define the search pattern for pages
         lineJournal= self.FindLine('journal') # Id. for journal
@@ -74,13 +78,16 @@ class CleanFileBib():
     
     
     def Journal_Format(self, txt, journal_re, journals, style=1):
-        """ Change name according to..."""
+        """ Change name of the Journal according to APA/Vancouver style
+        """
         # Style -> APA= 1; Vancouver= 2
         journal_name = journal_re.search(txt).groups()
         journal_name = journal_name[2].lower()
+        journal_name = journal_name.replace(".","")        
         if style == 1:
+            # Reverse the dictionary (replace long name by short one)            
             if journal_name in journals.values():
-                dico_inv   = dict([(v, k) for (k, v) in journals.iteritems()]) # Reverse the dictionary to replace the long name by the short one
+                dico_inv   = dict([(v, k) for (k, v) in journals.iteritems()]) 
                 journal_ok = dico_inv[journal_name]
             else:
                 journal_ok = journal_name
@@ -116,7 +123,7 @@ class CleanFileBib():
         to_pass = ['et', 'le', 'la', 'de', 'du', 'l', 'a', 'an', 'in', 'to', 'of',\
                    'for', 'the', 'and', '-', '--', ':', '?']
         words = journal_name.split() # Split the journal's name (single word)
-        words_ok = [] # Initiate an empty list
+        words_ok = []                # Initiate an empty list
         words_ok.append( words[0].capitalize() ) # Always capitalize the first word
         for curWord in words[1:]:
             if curWord in to_pass:          # Capitalize the good words
@@ -132,49 +139,42 @@ class CleanFileBib():
         return journal_name_ok
 
 
-    def PagesNberAPA(self, t1, t2):
-        """ A function to add the missing numbers
-              in order to have the same length as in the APA format.
+    def PagesNber(self, t1, t2, style=1):
+        """ A function to correct the pages numbers
+            In the APA style needs to have the same length
+            In the Vancouver style needs to delete the repeated first numbers
             First page is t1, last page is t2
-            E.g.: 1128--35 transform to 1128--1135
+            E.g. APA: 1128--35 transform to 1128--1135
+            E.g. Vanc: 1128--1135 transformed to 1128--35
         """
-        while len(t1) > len(t2): # Check if a correction should be applied
-            t2= t1[-(1+len(t2))]+t2 # Add the missing numbers
-        return t2
-
-
-    def PagesNberMed(self, t1, t2):
-        """ A function to delete the page numbers that are identical.
-            First page is t1, last page is t2
-            E.g.: 1128--1135 transformed to 1128--35
-        """
-        x, done= 0, 0 # Initialise les variables controles
-        if len(t1) >= len(t2): # Verifie que les pages ne soient pas deja coupees
-            while done<1:
-                if t1[x] == t2[x]: # Loop pour definir combien de chiffres sont identiques
-                    x+=1 # Incremente la variable de controle x
-                else:
-                    done=1 # Quite la boucle des que les deux nombres sont differents
-            t2=t2[x:] # Ajuste la nouvelle valeur pour la derniere page
+        if style ==1:
+            while len(t1) > len(t2):    # Check if a correction should be applied
+                t2= t1[-(1+len(t2))]+t2 # Add the missing numbers
+        else:
+            x, done= 0, 0          # Initiate control variables
+            if len(t1) >= len(t2): # Check if the pages are in the correct format
+                while done<1:
+                    if t1[x] == t2[x]: # Loop to find how many number are identical
+                        x+=1       # Increment control variable
+                    else:
+                        done=1     # Exit the loop when numbers are different
+                t2=t2[x:]          # Correct the last page number value
         return t2
 
 
     def ChangePageNber(self, txt, style=1):
         """ A function to apply the correct change page number,
               either regarding the APA or Vancouver guidelines.
-            Find the groups of pages and send them to the APA/Vancouv function.
+            Find the groups of pages and send them to the APA/Vancouver function.
         """
         pagePattern= re.compile(r'\D*(\d+)\D*(\d*)\D*$') # Space numbers other numbers other
         if pagePattern.search(txt) != None:
             pages= pagePattern.search(txt).groups() # Find the groups of numbers
-            p1= pages[0] # Define p1 and p2
-            p2= pages[1] # p1= first page; p2= last page
+            p1= pages[0]  # Define p1 and p2
+            p2= pages[1]  # p1= first page; p2= last page
             if len(p2)>0: # Check if a number for t2 exists
-                if style == 1:
-                    t2 = self.PagesNberAPA(p1, p2) # t2 is the new value of p2
-                elif style == 2:
-                    t2 = self.PagesNberMed(p1, p2)
-            else: # If no number for t2, then print XXXX
+                t2 = self.PagesNber(p1, p2, style) # t2 is the new value of p2
+            else:         # If no number for t2, then print XXXX
                 t2 = 'XXXX'
         else:
             p1 = 'XXXX'
@@ -240,8 +240,7 @@ class MainWindow(QtGui.QMainWindow):
         
         
     def style_block(self):
-        """ 
-            Define the section of the GUI dedicated to the format
+        """ Define the section of the GUI dedicated to the format
             User can choose between the 'APA' and 'Vancouver' style
             The format is defined under the choice as well as an example
         """   
@@ -293,8 +292,7 @@ class MainWindow(QtGui.QMainWindow):
                 
           
     def styleChoose(self, style):
-        """
-            Display the format rule and an example
+        """ Display the format rule and an example
               according to the selection of the user
         """
         if style == 0:
@@ -314,8 +312,7 @@ class MainWindow(QtGui.QMainWindow):
     
 
     def bibFile(self):
-        """
-            GUI section to receive a droped file
+        """ GUI section to receive a dropped file
             And take it as the bib file to clean 
         """
         self.setAcceptDrops(True)
@@ -414,8 +411,7 @@ class MainWindow(QtGui.QMainWindow):
             
             
     def Opts(self):
-        """
-           Option panel to add/remove key words defining the fields
+        """ Option panel to add/remove key words defining the fields
              to ignore in the cleaned bibtex file
         """
         opt = QtGui.QDialog(self)
@@ -465,8 +461,14 @@ class MainWindow(QtGui.QMainWindow):
             self.chx.append(str(self.listOpt.item(index).text()))
 
 
+
+# --------------------------------------------------------------
+# START THE APPLICATION
+# --------------------------------------------------------------
 def main():
-    
+    """Define the main application
+       Calling the UI
+    """
     app = QtGui.QApplication(sys.argv)
     ex = MainWindow()
     sys.exit(app.exec_())

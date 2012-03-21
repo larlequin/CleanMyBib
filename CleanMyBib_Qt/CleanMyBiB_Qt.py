@@ -217,9 +217,9 @@ class MainWindow(QtGui.QMainWindow):
         options = QtGui.QAction(QtGui.QIcon('opt.jpeg'), 'Options', self)
         options.setShortcut('Ctrl+O')
         options.setStatusTip('Change the fields to ignore')
-        options.triggered.connect(self.Opt)
-
-		exitAction = QtGui.QAction(QtGui.QIcon('exit2.jpeg'), 'Exit', self)
+        options.triggered.connect(self.Opts)
+        
+        exitAction = QtGui.QAction(QtGui.QIcon('exit2.jpeg'), 'Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
@@ -231,7 +231,7 @@ class MainWindow(QtGui.QMainWindow):
         # Fill the Menu
         menubar  = self.menuBar()
         mainMenu = menubar.addMenu('&Menu')
-		mainMenu.addAction(options)
+        mainMenu.addAction(options)
         mainMenu.addAction(aboutAction)
         mainMenu.addAction(exitAction)
 
@@ -411,11 +411,11 @@ class MainWindow(QtGui.QMainWindow):
         file according to the APA like or Vancouver like guidlines.
         <p>Python %s - on %s""" % (
             __version__, platform.python_version(), platform.system()))
-        
-
-   	def Opt(self):
+            
+            
+    def Opts(self):
         opt = QtGui.QDialog(self)
-        opt.setWindowTitle('Options -- Fields to delete') 
+        opt.setWindowTitle('Options -- Fields to delete')
         self.listOpt = QtGui.QListWidget(opt)
         for item in self.chx:
                 self.listOpt.addItem(item)

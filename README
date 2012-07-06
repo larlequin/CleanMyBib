@@ -27,6 +27,8 @@ The reference are sorted by citation keys and only the minimum needed fields are
 
 The format options and the fields to keep could be chosen in the script or in the GUI version.
 
+If page numbers or journal names are missing, a log file (CleanMyBib.log) will be created and will indicate the citation keys of the references. The script is smart enough to detect if the reference should not have pages numbers as "in press" articles or books.
+
 
 # Dependences
 

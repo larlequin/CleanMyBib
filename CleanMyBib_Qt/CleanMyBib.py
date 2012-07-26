@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # A Python class to format bibtex references.
@@ -298,22 +298,44 @@ def main():
     """ If the script is called as a main script, define general options and
           launch the class to clean the file.
     """
-    # Select the bibtex file
+    # Initiate the script
+    os.system("clear")
+    print "Welcome to CleanMyBib!"
     try:
         fileBib = sys.argv[1]  # Input file
+        file_input = True
     except IndexError:
-        print "No bibtex file provided"
-        print "Assuming the file to be 'MyCollection.bib'"
-        fileBib = "MyCollection.bib"
+        print "\nNo bibtex file provided"
+        file_input = False
+    # Ask for a file
+    while file_input is False:
+        fileBib = raw_input("Please enter the path of a bibtex file: ")
+        if os.path.exists(fileBib):
+            file_input = True
+    # File cleaned
     fileOK  = open('bibcleaned.bib', 'w')
     fields = ['abstract','author','year','title', 'journal', 'booktitle', \
                 'pages', 'volume', 'editor','publisher','address']
-    journal_style = "long"
-    page_style    = "long"
+    # Define the options
+    print "\nPlease define the following options:"
+    journal_style = raw_input("Format for the journal names (long/short): ")
+    while journal_style != "long" and journal_style != "short":
+        print "Please enter 'long' or 'short'..."
+        journal_style = raw_input("Format for the journal names (long/short): ")
+    page_style = raw_input("Format for the page numbers (long/short): ")
+    while page_style != "long" and page_style != "short":
+        print "Please enter 'long' or 'short'..."
+        page_style = raw_input("Format for the page numbers (long/short): ")
+    doi = raw_input("Add the doi field (Y/N)? ")
+    while doi != "y" and doi != "n":
+        print "Please enter 'y' or 'n'..."
+        doi = raw_input("Add the doi field (Y/N)? ")
+    if doi == 'y':
+        fields.append('doi')
+    # Launch the app
     app = CleanFileBib(fileBib, fileOK, fields, journal_style, page_style)
-
+    # Closing
+    print "\nYour bibtex file is now cleaned and save as 'bibcleaned.bib'!\n"
 
 if __name__ == '__main__':
     main()
-
-

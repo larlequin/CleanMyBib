@@ -32,8 +32,9 @@ class CleanFileBib():
             Log missing data,
             Write the correct fields according to the reference type.
         """
-        # Initiate a list to log missing page numbers
+        # Initiate a list to log missing page numbers and journals
         log_pageNber = []
+        log_journals = []
         noYear = ["in press", "accepted", "sous presse", "accepte"]
         noPage = ["book", "manual"]
         # Parse the bibtex file
@@ -42,17 +43,15 @@ class CleanFileBib():
         #   remaining fields to use
         for citeKey in citeKeys:
             ref =  parser.data.entries[citeKey]  # Select the current reference
-            if ref.fields['year'].lower() not in noYear:
-                try:  # Check/Change the page numbers format
+            try:
+                if ref.fields['year'].lower() not in noYear:
                     pages = self.ChangePageNber(ref.fields['pages'], page_style)
-                except KeyError:
-                    if ref.type not in noPage:
-                        log_pageNber.append(citeKey)
-                if len(pages) == 0 and ref.type not in noPage:
+            except KeyError:
+                if ref.type not in noPage:
                     log_pageNber.append(citeKey)
+            if len(pages) == 0 and ref.type not in noPage:
+                log_pageNber.append(citeKey)
             journal = ""
-            # Initiate some lists for the logs
-            log_journals = []
             # Format the articles
             if ref.type == 'article':
                 journal, fieldsToFill, log_journals = self.cleanArticle(citeKey,
@@ -67,8 +66,8 @@ class CleanFileBib():
             data = self.fillRef(ref, fieldsToFill, journal, pages)
             lenMax = self.fieldLengthMax(fields)
             file_BibOk.write(self.refPrint(citeKey, ref, data, lenMax))
-            if len(log_journals)>0 or len(log_pageNber)>0:
-                self.logFile(fileBib, log_pageNber, log_journals)
+        if len(log_journals)>0 or len(log_pageNber)>0:
+            self.logFile(fileBib, log_pageNber, log_journals)
 
 
 # -------------------------------------------------------------
@@ -102,12 +101,13 @@ class CleanFileBib():
             journal = self.Journal_Format(ref.fields['journal'].lower(),
                                              journals, journal_style)
             journal = self.Journal_Name(journal)
-        except KeyError:
+        except:
             log_journals.append(citeKey)
         # Define the fields to keep and fill the data into a list
         for field in fields:
             if field not in article_exclude:
                 fieldsToFill.append(field)
+                journal = ""
         return journal, fieldsToFill, log_journals
 
 
@@ -278,11 +278,12 @@ class CleanFileBib():
         # Create a log file for more information about the bibfile
         rep, name  = os.path.split(fileBib)
         log = open(rep+"CleanMyBib.log", "w")
+        log.write("Log file of Clean My Bib\n========================\n")
         if  len(journals)>0:
             log.write("\nMissing Journal Name\n--------------------\n")
             for ref in journals:
                 log.write("Missing journal name for the reference '{0}'\n"
-                                                                .format(ref))
+                                                            .format(ref))
         if len(pageNber)>0:
             log.write("\nMissing Page Numbers\n--------------------\n")
             for ref in pageNber:

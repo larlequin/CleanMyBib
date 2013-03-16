@@ -231,9 +231,9 @@ class CleanFileBib():
         data = {}
         for field in fieldsOK:
             if field == "journal" and len(journal_ok)>0:
-                data[field] = journal_ok
+                data[field] = journal_ok.encode('utf-8')
             elif field == "pages" and len(pages_ok)>0:
-                data[field] = pages_ok
+                data[field] = pages_ok.encode('utf-8')
             else:
                 try:
                     data[field] = ref.fields[field].encode('utf-8')
@@ -267,7 +267,7 @@ class CleanFileBib():
                     index += 1
             body = body + field.capitalize() + spaces + "=  {" +data[field]+"},"
         body = body[0:-1]  # Deleted the last comma
-        footer = "\n}}\n\n"
+        footer = "\n}\n\n"
         return header+body+footer
 
 

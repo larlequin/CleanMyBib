@@ -32,7 +32,6 @@ class CleanFileBib():
             Log missing data,
             Write the correct fields according to the reference type.
         """
-        print journal_style
         # Initiate a list to log missing page numbers and journals
         log_pageNber = []
         log_journals = []
@@ -99,14 +98,18 @@ class CleanFileBib():
         try:
             journal = self.Journal_Format(ref.fields['journal'].lower(),
                                              journals, journal_style)
+        except:
+            log_journals.append(citeKey)
+            journal = ""
+        try:
             journal = self.Journal_Name(journal)
         except:
             log_journals.append(citeKey)
+            journal = ""
         # Define the fields to keep and fill the data into a list
         for field in fields:
             if field not in article_exclude:
                 fieldsToFill.append(field)
-                journal = ""
         return journal, fieldsToFill, log_journals
 
 

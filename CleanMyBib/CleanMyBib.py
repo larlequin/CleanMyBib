@@ -32,6 +32,7 @@ class CleanFileBib():
             Log missing data,
             Write the correct fields according to the reference type.
         """
+        print journal_style
         # Initiate a list to log missing page numbers and journals
         log_pageNber = []
         log_journals = []
@@ -145,7 +146,7 @@ class CleanFileBib():
                 journal_ok = journals[journal_name]
             else:
                 journal_ok = journal_name
-            # journal_ok = " ".join(journal_ok)
+                # journal_ok = " ".join(journal_ok)
         else:
             journal_ok = journal_name
         return journal_ok
@@ -311,8 +312,11 @@ def main():
         fileBib = raw_input("Please enter the path of a bibtex file: ")
         if os.path.exists(fileBib):
             file_input = True
+    # Prepare the file name 
+    rep, name = os.path.split(fileBib)
+    fileOK_name = os.path.join(rep, 'Cleaned_'+name)
     # File cleaned
-    fileOK  = open('bibcleaned.bib', 'w')
+    fileOK  = open(fileOK_name, 'w')
     fields = ['abstract','author','year','title', 'journal', 'booktitle', \
                 'pages', 'volume', 'editor','publisher','address']
     # Define the options
@@ -334,7 +338,7 @@ def main():
     # Launch the app
     app = CleanFileBib(fileBib, fileOK, fields, journal_style, page_style)
     # Closing
-    print "\nYour bibtex file is now cleaned and save as 'bibcleaned.bib'!\n"
+    print "\nYour bibtex file is now cleaned and save as %s!\n" % (fileOK_name)
 
 if __name__ == '__main__':
     main()

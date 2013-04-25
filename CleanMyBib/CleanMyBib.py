@@ -49,6 +49,8 @@ class CleanFileBib():
                 except KeyError:
                     log_pageNber.append(citeKey)
                     pages = []
+            else:
+                pages = []
             journal = ""
             # Format the articles
             if ref.type == 'article':
@@ -149,7 +151,8 @@ class CleanFileBib():
                 journal_ok = journals[journal_name]
             else:
                 journal_ok = journal_name
-                # journal_ok = " ".join(journal_ok)
+            # journal_ok = journal_ok.split(' ')
+            # journal_ok = ". ".join(journal_ok)
         else:
             journal_ok = journal_name
         return journal_ok

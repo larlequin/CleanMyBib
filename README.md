@@ -6,10 +6,10 @@ The script will change the journal name and the page numbers format and will cre
 
 Created by Guillaume T. Vallet 
 
-Improved version --2011/11/22-- v02
-Add a Qt version --2011/03/10-- v03
-New version of the script (Pybtex) --2012/07/05-- v04
-Interactive script --2012/07/26-- v04.1
+Improved version --2011/11/22-- v02  
+Add a Qt version --2011/03/10-- v03  
+New version of the script (Pybtex) --2012/07/05-- v04  
+Interactive script --2012/07/26-- v04.1  
 
 Laval University (Quebec city, Canada) / Lyon 2 University (Lyon, France)
 

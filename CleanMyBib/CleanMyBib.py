@@ -18,6 +18,9 @@ import platform
 import textwrap
 from pybtex.database.input import bibtex
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 
 class CleanFileBib():
     """ A class to clean a bibtex file to format the journal name and the pages
@@ -236,12 +239,12 @@ class CleanFileBib():
         data = {}
         for field in fieldsOK:
             if field == "journal" and len(journal_ok)>0:
-                data[field] = journal_ok.encode('utf-8')
+                data[field] = journal_ok
             elif field == "pages" and len(pages_ok)>0:
-                data[field] = pages_ok.encode('utf-8')
+                data[field] = pages_ok
             else:
                 try:
-                    data[field] = ref.fields[field].encode('utf-8')
+                    data[field] = ref.fields[field]
                 except KeyError:
                     pass
         return data

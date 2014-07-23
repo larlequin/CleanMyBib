@@ -207,7 +207,7 @@ class MainWindow(QtGui.QMainWindow):
                     self.status.showMessage("Drop another file", 5000)
                 except:
                     self.statusClean.setText("An error has occurred.\
-                        \nPlease check your bibtex file")
+                        \nPlease check your bibtex file\nand the log file")
                     icon5 = QtGui.QPixmap(datadir+"/error.png")
                     self.waitLogo.setPixmap(icon5)
                 fileBibOK.close()

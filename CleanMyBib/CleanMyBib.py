@@ -17,6 +17,7 @@ import csv
 import platform
 import textwrap
 from pybtex.database.input import bibtex
+import pybtex
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -41,7 +42,7 @@ class CleanFileBib():
         noYear = ["in press", "accepted", "sous presse", "accepté"]
         noPage = ["book", "manual"]
         # Parse the bibtex file
-        parser, citeKeys = self.parseBib(fileBib)
+        parser, citeKeys, log_bibkey = self.parseBib(fileBib)
         # For each reference, change the format if needed and select the
         #   remaining fields to use
         for citeKey in citeKeys:
@@ -69,8 +70,8 @@ class CleanFileBib():
             data = self.fillRef(ref, fieldsToFill, journal, pages)
             lenMax = self.fieldLengthMax(fields)
             file_BibOk.write(self.refPrint(citeKey, ref, data, lenMax))
-        if len(log_journals)>0 or len(log_pageNber)>0:
-            self.logFile(fileBib, log_pageNber, log_journals)
+        if log_bibkey or len(log_journals)>0 or len(log_pageNber)>0:
+            self.logFile(fileBib, log_bibkey, log_pageNber, log_journals)
 
 
 # -------------------------------------------------------------
@@ -81,8 +82,17 @@ class CleanFileBib():
             Return the parser and the citeKeys sorted.
         """
         parser = bibtex.Parser()
-        bibData = parser.parse_file(fileBib)
-        return parser, sorted(bibData.entries.keys())
+        try:
+            bibData = parser.parse_file(fileBib)
+            log_bibkey = None
+        except pybtex.database.BibliographyDataError as e:
+            msg = str(e).capitalize() + "\nPlease clean your file and try again.\n"
+            log_bibkey = msg
+            print("\n------------------------WARNING ! -------------------\n"
+                    + msg + "\n-------------------------------------------\n")
+            self.logFile(fileBib, log_bibkey, [], [])
+            raise SystemExit(0)
+        return parser, sorted(bibData.entries.keys()), log_bibkey
 
 
 # -------------------------------------------------------------
@@ -91,7 +101,8 @@ class CleanFileBib():
     def cleanArticle(self, citeKey, ref, journal_style, fields, log_journals):
         """ A function to prepare which fields will be used for articles and
               format the journal name.
-            Return the journal name and the list of fields to use
+            Return the journal name and the list of fields to use.
+            Write a log if necessary.
         """
         # Load journal names database
         journals = self.Read_CSV('.img/Journals.csv', 0, 1)
@@ -170,7 +181,10 @@ class CleanFileBib():
                     'of', 'for', 'the', 'and', '-', '--', ':', '?']
         words = journal_name.split() # Split the journal's name (single word)
         words_ok = []                # Initiate an empty list
-        words_ok.append( words[0].capitalize() ) # Capitalized the first word
+        if words[0][0] == '{':
+            words_ok.append( words[0][1:].capitalize() ) # Capitalized the first word       
+        else:
+            words_ok.append( words[0].capitalize() ) # Capitalized the first word       
         for curWord in words[1:]:
             if curWord in to_pass:          # Capitalize the good words
                 words_ok.append( curWord )  # Avoid the liaison words
@@ -282,11 +296,14 @@ class CleanFileBib():
 # -------------------------------------------------------------
 #  LOG FILE
 # -------------------------------------------------------------
-    def logFile(self, fileBib, pageNber, journals):
+    def logFile(self, fileBib, keys, pageNber, journals):
         # Create a log file for more information about the bibfile
         rep, name  = os.path.split(fileBib)
         log = open(os.path.join(rep,"CleanMyBib.log"), "w")
         log.write("Log file of Clean My Bib\n========================\n")
+        if keys:
+            log.write("\nDuplicate bibtex keys:\n----------------------\n")
+            log.write(keys)        
         if  len(journals)>0:
             log.write("\nMissing Journal Name\n--------------------\n")
             for ref in journals:

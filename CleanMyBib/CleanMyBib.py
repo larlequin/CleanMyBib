@@ -193,7 +193,10 @@ class CleanFileBib():
         journal_name_ok = ""     # Prepare the final name
         for i in words_ok:
             if i == words_ok[len(words_ok)-1]: # Construct the final name
-                journal_name_ok += i        # Avoid adding a 'space' at the end
+                if i[-1] == "}": 
+                    journal_name_ok += i[:-1]        # Avoid adding a 'space' at the end
+                else:
+                    journal_name_ok += i
             else:
                 journal_name_ok += i+" "
         return journal_name_ok
